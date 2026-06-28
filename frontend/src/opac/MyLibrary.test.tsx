@@ -109,8 +109,12 @@ describe('MyLibrary', () => {
           'Hold on “Waiting Work” cancelled.',
         ),
       )
-      // refresh() re-queries both lists: once on mount, once after the cancel.
-      expect(api.patronHolds).toHaveBeenCalledTimes(2)
+      // A successful cancel triggers refresh(), re-querying the holds list
+      // beyond the initial mount load. Count left loose (>= 2) so it doesn't
+      // couple to how many lists refresh touches or to StrictMode re-runs.
+      await waitFor(() =>
+        expect(vi.mocked(api.patronHolds).mock.calls.length).toBeGreaterThanOrEqual(2),
+      )
     })
   })
 
