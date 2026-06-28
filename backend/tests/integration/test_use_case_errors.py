@@ -34,7 +34,6 @@ from app.domain.errors import (
 from app.domain.value_objects import ItemState, MaterialType, PatronCategory
 from tests.conftest import seed
 
-
 # --- catalog ----------------------------------------------------------------
 
 
