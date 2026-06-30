@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
+from app.application.dto import ItemResult, ManifestationResult, WorkResult
 from app.application.use_cases.catalog import (
     AddItem,
     CatalogManifestation,
@@ -34,7 +35,7 @@ def get_catalog(query=Depends(deps.get_query_service)) -> list:
 @router.post("/works", status_code=201, response_model=WorkResponse)
 def create_work(
     body: CreateWorkRequest, uc: CreateWork = Depends(deps.get_create_work)
-) -> WorkResponse:
+) -> WorkResult:
     return uc.execute(body.title, body.author)
 
 
@@ -44,7 +45,7 @@ def create_work(
 def catalog_manifestation(
     body: CreateManifestationRequest,
     uc: CatalogManifestation = Depends(deps.get_catalog_manifestation),
-) -> ManifestationResponse:
+) -> ManifestationResult:
     return uc.execute(
         work_id=body.work_id,
         title=body.title,
@@ -63,7 +64,7 @@ def add_item(
     manifestation_id: IdPath,
     body: AddItemRequest,
     uc: AddItem = Depends(deps.get_add_item),
-) -> ItemResponse:
+) -> ItemResult:
     return uc.execute(manifestation_id, body.barcode)
 
 
@@ -72,7 +73,7 @@ def update_work(
     work_id: IdPath,
     body: UpdateWorkRequest,
     uc: UpdateWork = Depends(deps.get_update_work),
-) -> WorkResponse:
+) -> WorkResult:
     return uc.execute(work_id, body.title, body.author)
 
 
@@ -83,7 +84,7 @@ def update_manifestation(
     manifestation_id: IdPath,
     body: UpdateManifestationRequest,
     uc: UpdateManifestation = Depends(deps.get_update_manifestation),
-) -> ManifestationResponse:
+) -> ManifestationResult:
     return uc.execute(
         manifestation_id=manifestation_id,
         title=body.title,

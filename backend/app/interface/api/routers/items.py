@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
+from app.application.dto import ItemAvailabilityResult, ItemResult
 from app.application.use_cases.catalog import ChangeItemState, GetItemAvailability
 from app.interface.api import deps
 from app.interface.api.params import CodePath
@@ -18,7 +19,7 @@ router = APIRouter(tags=["items"])
 def get_item(
     barcode: CodePath,
     uc: GetItemAvailability = Depends(deps.get_item_availability),
-) -> ItemAvailabilityResponse:
+) -> ItemAvailabilityResult:
     return uc.execute(barcode)
 
 
@@ -27,5 +28,5 @@ def change_item_state(
     barcode: CodePath,
     body: ChangeItemStateRequest,
     uc: ChangeItemState = Depends(deps.get_change_item_state),
-) -> ItemResponse:
+) -> ItemResult:
     return uc.execute(barcode, body.state)

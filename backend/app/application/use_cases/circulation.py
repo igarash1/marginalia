@@ -46,9 +46,11 @@ class CheckOut:
             item = uow.items.get_by_barcode(item_barcode)
             if item is None:
                 raise ItemNotFound(f"item {item_barcode} does not exist")
+            assert item.id is not None  # loaded from the DB, so id is set
             patron = uow.patrons.get_by_card_number(patron_card)
             if patron is None:
                 raise PatronNotFound(f"patron {patron_card} does not exist")
+            assert patron.id is not None  # loaded from the DB, so id is set
             manifestation = uow.manifestations.get(item.manifestation_id)
             if manifestation is None:
                 raise ManifestationNotFound(
@@ -96,6 +98,7 @@ class CheckOut:
                 uow.holds.update(ready_hold)
 
             uow.commit()
+            assert loan.id is not None  # id assigned by the flush in add()
             return LoanResult(
                 loan_id=loan.id,
                 item_barcode=item.barcode,
@@ -118,6 +121,7 @@ class CheckIn:
             item = uow.items.get_by_barcode(item_barcode)
             if item is None:
                 raise ItemNotFound(f"item {item_barcode} does not exist")
+            assert item.id is not None  # loaded from the DB, so id is set
             loan = uow.loans.get_open_by_item(item.id)
             if loan is None:
                 raise LoanNotOpen(f"item {item_barcode} is not on loan")
@@ -206,14 +210,17 @@ class RenewLoan:
             item = uow.items.get_by_barcode(item_barcode)
             if item is None:
                 raise ItemNotFound(f"item {item_barcode} does not exist")
+            assert item.id is not None  # loaded from the DB, so id is set
             loan = uow.loans.get_open_by_item(item.id)
             if loan is None:
                 raise LoanNotOpen(f"item {item_barcode} is not on loan")
+            assert loan.id is not None  # loaded from the DB, so id is set
             manifestation = uow.manifestations.get(item.manifestation_id)
             if manifestation is None:
                 raise ManifestationNotFound(
                     f"manifestation {item.manifestation_id} does not exist"
                 )
+            assert manifestation.id is not None  # loaded from the DB, id is set
             patron = uow.patrons.get(loan.patron_id)
             if patron is None:
                 raise PatronNotFound(f"patron {loan.patron_id} does not exist")
@@ -306,6 +313,7 @@ class PlaceHold:
             patron = uow.patrons.get_by_card_number(patron_card)
             if patron is None:
                 raise PatronNotFound(f"patron {patron_card} does not exist")
+            assert patron.id is not None  # loaded from the DB, so id is set
             # A hold is a future borrow, so a suspended/expired patron may not
             # queue for one either.
             patron.ensure_active(self._clock.today())
@@ -330,6 +338,7 @@ class PlaceHold:
                 )
             )
             uow.commit()
+            assert hold.id is not None  # id assigned by the flush in add()
             return HoldResult(
                 hold_id=hold.id,
                 manifestation_id=manifestation_id,

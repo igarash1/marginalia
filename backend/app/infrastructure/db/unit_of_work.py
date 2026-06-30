@@ -4,6 +4,14 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.domain.repositories import (
+    HoldRepository,
+    ItemRepository,
+    LoanRepository,
+    ManifestationRepository,
+    PatronRepository,
+    WorkRepository,
+)
 from app.infrastructure.db.repositories import (
     SqlAlchemyHoldRepository,
     SqlAlchemyItemRepository,
@@ -22,13 +30,18 @@ class SqlAlchemyUnitOfWork:
         self._session_factory = session_factory
 
     def __enter__(self) -> SqlAlchemyUnitOfWork:
+        # Declare the repositories at their port types so this concrete UoW
+        # structurally satisfies the ``UnitOfWork`` Protocol (whose attributes
+        # are invariant); the SQLAlchemy classes are the adapters behind them.
         self._session: Session = self._session_factory()
-        self.works = SqlAlchemyWorkRepository(self._session)
-        self.manifestations = SqlAlchemyManifestationRepository(self._session)
-        self.items = SqlAlchemyItemRepository(self._session)
-        self.patrons = SqlAlchemyPatronRepository(self._session)
-        self.loans = SqlAlchemyLoanRepository(self._session)
-        self.holds = SqlAlchemyHoldRepository(self._session)
+        self.works: WorkRepository = SqlAlchemyWorkRepository(self._session)
+        self.manifestations: ManifestationRepository = (
+            SqlAlchemyManifestationRepository(self._session)
+        )
+        self.items: ItemRepository = SqlAlchemyItemRepository(self._session)
+        self.patrons: PatronRepository = SqlAlchemyPatronRepository(self._session)
+        self.loans: LoanRepository = SqlAlchemyLoanRepository(self._session)
+        self.holds: HoldRepository = SqlAlchemyHoldRepository(self._session)
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
