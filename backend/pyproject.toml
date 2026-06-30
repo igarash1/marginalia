@@ -19,6 +19,7 @@ dev = [
     "pytest-cov>=5.0",
     "httpx>=0.27",
     "ruff>=0.6",
+    "mypy>=1.11",
 ]
 
 [build-system]
@@ -61,3 +62,14 @@ ignore = ["UP042"]
 # FastAPI's dependency-injection idiom puts Depends()/Query() in argument
 # defaults by design; it is not the B008 mutable-default footgun.
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
+[tool.mypy]
+# Make the type annotations load-bearing: without this the Protocol ports in
+# domain/application are never verified against their SQLAlchemy adapters.
+# Scoped to app/ (production code); strictening (typed FastAPI DI plumbing,
+# tests) is left for a follow-up so this stays a focused, green baseline.
+python_version = "3.12"
+files = ["app"]
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true

@@ -31,6 +31,7 @@ class CreateWork:
         with self._uow as uow:
             work = uow.works.add(Work(title=title, author=author))
             uow.commit()
+            assert work.id is not None  # id assigned by the flush in add()
             return WorkResult(id=work.id, title=work.title, author=work.author)
 
 
@@ -61,6 +62,7 @@ class CatalogManifestation:
                 )
             )
             uow.commit()
+            assert m.id is not None  # id assigned by the flush in add()
             return ManifestationResult(
                 id=m.id,
                 work_id=m.work_id,
@@ -89,6 +91,7 @@ class AddItem:
                 Item(manifestation_id=manifestation_id, barcode=barcode)
             )
             uow.commit()
+            assert item.id is not None  # id assigned by the flush in add()
             return ItemResult(
                 id=item.id,
                 manifestation_id=item.manifestation_id,
@@ -108,6 +111,7 @@ class UpdateWork:
             work = uow.works.get(work_id)
             if work is None:
                 raise WorkNotFound(f"work {work_id} does not exist")
+            assert work.id is not None  # loaded from the DB, so id is set
             work.title = title
             work.author = author
             uow.works.update(work)
@@ -140,6 +144,7 @@ class UpdateManifestation:
                 raise ManifestationNotFound(
                     f"manifestation {manifestation_id} does not exist"
                 )
+            assert m.id is not None  # loaded from the DB, so id is set
             m.title = title
             m.material_type = material_type
             m.isbn = isbn
@@ -179,6 +184,7 @@ class ChangeItemState:
             item = uow.items.get_by_barcode(barcode)
             if item is None:
                 raise ItemNotFound(f"item {barcode} does not exist")
+            assert item.id is not None  # loaded from the DB, so id is set
             if target in (
                 ItemState.in_repair,
                 ItemState.lost,
@@ -215,6 +221,7 @@ class GetItemAvailability:
             item = uow.items.get_by_barcode(barcode)
             if item is None:
                 raise ItemNotFound(f"item {barcode} does not exist")
+            assert item.id is not None  # loaded from the DB, so id is set
             open_loan = uow.loans.get_open_by_item(item.id)
             ready_hold = uow.holds.get_ready_for_item(item.id)
             availability = self._availability.availability_of(

@@ -12,6 +12,8 @@ from app.domain.value_objects import PatronCategory
 
 
 def _result(patron: Patron) -> PatronResult:
+    # Callers pass a persisted patron (added or loaded), so its id is set.
+    assert patron.id is not None
     return PatronResult(
         id=patron.id,
         card_number=patron.card_number,

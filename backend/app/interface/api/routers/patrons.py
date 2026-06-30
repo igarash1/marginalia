@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
+from app.application.dto import PatronResult
 from app.application.use_cases.patrons import (
     RegisterPatron,
     ReinstatePatron,
@@ -60,7 +61,7 @@ def patron_holds(
 def register_patron(
     body: RegisterPatronRequest,
     uc: RegisterPatron = Depends(deps.get_register_patron),
-) -> PatronResponse:
+) -> PatronResult:
     return uc.execute(body.card_number, body.category, body.expires_on)
 
 
@@ -69,14 +70,14 @@ def update_patron(
     card_number: CodePath,
     body: UpdatePatronRequest,
     uc: UpdatePatron = Depends(deps.get_update_patron),
-) -> PatronResponse:
+) -> PatronResult:
     return uc.execute(card_number, body.category, body.expires_on)
 
 
 @router.post("/patrons/{card_number}/suspend", response_model=PatronResponse)
 def suspend_patron(
     card_number: CodePath, uc: SuspendPatron = Depends(deps.get_suspend_patron)
-) -> PatronResponse:
+) -> PatronResult:
     return uc.execute(card_number)
 
 
@@ -84,5 +85,5 @@ def suspend_patron(
 def reinstate_patron(
     card_number: CodePath,
     uc: ReinstatePatron = Depends(deps.get_reinstate_patron),
-) -> PatronResponse:
+) -> PatronResult:
     return uc.execute(card_number)
